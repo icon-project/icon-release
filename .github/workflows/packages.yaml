@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ master, feature/* ]
+    branches: [ feature/* ]
   pull_request:
     branches: [ master ]
 
@@ -13,6 +13,8 @@ jobs:
         python-version: [3.7]
 
     steps:
+      - name: checkout release
+        uses: actions/checkout@v2
       - name: checkout loopchain
         uses: actions/checkout@v2
         with:
@@ -29,7 +31,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: icon-project/icon-service
-          ref: 1.7.0rc6
+          ref: feature/build-package
           path: icon-service
       - name: checkout reward calculator
         uses: actions/checkout@v2
@@ -43,11 +45,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: workflow check
         run: |
+          pwd
           ls -al
       - name: build packages
         run: |
           python -m pip install --upgrade pip
-          pip list
+          make
+          ls -al loopchain/build
+          ls -al icon-rpc-server/build
+          ls -al icon-service/build
+          ls -al rewardcalculator/bin
+
 
 #      - name: Install dependencies
 #        run: |
