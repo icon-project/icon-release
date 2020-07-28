@@ -1,0 +1,59 @@
+on:
+  push:
+    branches: [ master, feature/* ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+      - name: checkout loopchain
+        uses: actions/checkout@v2
+        with:
+          repository: icon-project/loopchain
+          ref: 2.6.0rc1
+          path: loopchain
+      - name: checkout iconrpcserver
+        uses: actions/checkout@v2
+        with:
+          repository: icon-project/icon-rpc-server
+          ref: 1.5.0rc1
+          path: icon-rpc-server
+      - name: checkout iconservice
+        uses: actions/checkout@v2
+        with:
+          repository: icon-project/icon-service
+          ref: 1.7.0rc6
+          path: icon-service
+      - name: checkout reward calculator
+        uses: actions/checkout@v2
+        with:
+          repository: icon-project/rewardcalculator
+          ref: 1.2.2
+          path: rewardcalculator
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: workflow check
+        run: |
+          ls -al
+      - name: build packages
+        run: |
+          python -m pip install --upgrade pip
+          pip list
+
+#      - name: Install dependencies
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install pytest
+#          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+#      - name: Test with pytest
+#        run: |
+#          pytest
