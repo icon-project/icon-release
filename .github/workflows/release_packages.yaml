@@ -1,0 +1,116 @@
+on:
+  push:
+    branches: [ feature/* ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # FIXME
+    strategy:
+      matrix:
+        python-version: [3.7]
+    env:
+      LOOPCHAIN_REF: 2.6.0
+      ICONRPCSERVER_REF: 1.5.0
+      ICONSERVICE_REF: feature/IS-1180-add-makefile
+      REWARDCALCULATOR_REF: 1.2.2
+      BUILD_DIR: build
+      ASSETS_DIR: assets
+      PACKAGE_INFO: package_info.txt
+      DOCKER_TAG: latest
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v2
+      - name: checkout loopchain
+        uses: actions/checkout@v2
+        with:
+          repository: icon-project/loopchain
+          ref: ${{ env.LOOPCHAIN_REF }}
+          path: loopchain
+      - name: Checkout iconrpcserver
+        uses: actions/checkout@v2
+        with:
+          repository: icon-project/icon-rpc-server
+          ref: ${{ env.ICONRPCSERVER_REF }}
+          path: icon-rpc-server
+      - name: Checkout iconservice
+        uses: actions/checkout@v2
+        with:
+          repository: icon-project/icon-service
+          ref: ${{ env.ICONSERVICE_REF }}
+          path: icon-service
+      - name: Checkout reward calculator
+        uses: actions/checkout@v2
+        with:
+          repository: icon-project/rewardcalculator
+          ref: ${{ env.REWARDCALCULATOR_REF }}
+          path: rewardcalculator
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      # XXX this step for test
+      - name: Workflow check
+        run: |
+          echo $PWD
+          ls -al
+      - name: Build packages
+        run: |
+          python -m pip install --upgrade pip pytz wheel
+          mkdir -p $BUILD_DIR $ASSETS_DIR
+          make
+
+      # XXX this step for test
+      - name: Prepare assets
+        run: |
+          import pytz
+          from datetime import datetime
+          tzinfo = pytz.timezone("Asia/Seoul")
+          # hash_tag = "${{ hashFiles('Makefile') }}"
+          # print(hash_tag)
+          # version_tag = f"{datetime.now(tzinfo).strftime('%Y%m%dT%H%M%S')}x{hash_tag[:6]}"
+          version_tag = f"{datetime.now(tzinfo).strftime('%Y.%m.%d-%H%M%S')}"
+          print(f"::set-env name=DOCKER_TAG::{version_tag}")
+        shell: python
+      - name: Build assets
+        run: |
+          make assets DOCKER_TAG=$DOCKER_TAG
+          BODY=$(cat $BUILD_DIR/$PACKAGE_INFO)
+          BODY="${BODY//$'\n'/'%0A'}"
+          echo "-------"
+          echo $BODY
+          echo "::set-env name=PACKAGE_INFO_BODY::$BODY"
+      - name: Check build result
+        run: |
+          echo $DOCKER_TAG
+          ls -al ./$BUILD_DIR
+          ls -al ./$ASSETS_DIR
+          echo "-------"
+          echo "${{ env.PACKAGE_INFO_BODY }}"
+
+      - name: Create release
+        if: ${{ false }}
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: 1.1 # ${{ github.ref }}
+          release_name: Release 1.1 # ${{ github.ref }}
+          draft: true
+          prerelease: true
+      - name: Upload release asset
+        if: ${{ false }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: 1.1 # ${{ github.ref }}
+          file: ${{ format('{0}/*', env.ASSETS_DIR) }}
+          file_glob: true
+          release_name: Release 1.1
+          # prerelease: true
+          overwrite: true
+          body: |
+            ${{ env.PACKAGE_INFO_BODY }}
