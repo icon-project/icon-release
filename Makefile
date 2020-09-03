@@ -7,7 +7,7 @@ SUBDIR_RC = rewardcalculator
 BUILD_DIR = build
 ASSETS_DIR = assets
 DOCKER_TAG ?= latest
-GITHUB_TAG ?= 2020.08 # $(date "+%Y.%m")
+RELEASE_TAG ?= $(date "+%Y.%m")
 
 LOOPCHAIN_DIR = loopchain
 CITIZEN_PACK_DIR = citizen_pack_$(DOCKER_TAG)
@@ -17,9 +17,7 @@ PACKAGE_CKSUM = package_$(DOCKER_TAG)_sha256sum.txt
 PACKAGE_ASSET = $(DOCKER_TAG)_packages.tar.gz
 CITIZEN_PACK = $(CITIZEN_PACK_DIR).tar.gz
 CITIZEN_PACK_CKSUM = $(CITIZEN_PACK_DIR)_sha256sum.txt
-# FIXME : download url
-# https://github.com/icon-project/icon-release/releases/download/1.1/2020.08.10-103109_packages.tar.gz
-DOWNLOAD_URL = https://github.com/icon-project/icon-release/releases/download/$(GITHUB_TAG)
+DOWNLOAD_URL = https://github.com/icon-project/icon-release/releases/download/$(RELEASE_TAG)
 ICON_RC = icon_rc
 
 
@@ -70,7 +68,6 @@ generate-packages-info:
 
 	@ printf "\n## Download package file\n  $(DOWNLOAD_URL)/$(PACKAGE_ASSET) \n" >> $(abspath $(BUILD_DIR))/$(PACKAGE_INFO)
 	@ printf "\n## Download citizen pack\n  $(DOWNLOAD_URL)/$(CITIZEN_PACK) \n" >> $(abspath $(BUILD_DIR))/$(PACKAGE_INFO)
-	@ printf "\n## Get package information\n  $(DOWNLOAD_URL)/$(PACKAGE_INFO) \n" >> $(abspath $(BUILD_DIR))/$(PACKAGE_INFO)
 	@ printf "\n## Get package checksum file\n  $(DOWNLOAD_URL)/$(PACKAGE_CKSUM) \n" >> $(abspath $(BUILD_DIR))/$(PACKAGE_INFO)
 	@ printf "\n## Get citizen_pack checksum file\n  $(DOWNLOAD_URL)/$(CITIZEN_PACK_CKSUM) \n" >> $(abspath $(BUILD_DIR))/$(PACKAGE_INFO)
 
