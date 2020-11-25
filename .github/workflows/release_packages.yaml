@@ -34,6 +34,7 @@ jobs:
       PACKAGE_INFO: package_info.txt
       DOCKER_TAG: latest
       RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+      DEBUG: false
     steps:
       - name: Checkout release
         uses: actions/checkout@v2
@@ -65,8 +66,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      # XXX this step for test
       - name: Workflow check
+        if : ${{ startsWith(env.DEBUG, 'true') }}
         run: |
           echo $PWD
           ls -al
@@ -75,23 +76,16 @@ jobs:
           python -m pip install --upgrade pip pytz wheel
           mkdir -p $BUILD_DIR $ASSETS_DIR
           make
-
       - name: Prepare assets
         run: |
           # e.g. DOCKER_TAG=2020.11.25-155653
           python -c "import asset; print(asset.docker_tag())" >> $GITHUB_ENV
       - name: Build assets
-        # set-env truncate mulitline strings: https://github.com/actions/toolkit/issues/403
         run: |
           make assets DOCKER_TAG=$DOCKER_TAG RELEASE_TAG=$RELEASE_TAG
-          # BODY=$(cat $BUILD_DIR/$PACKAGE_INFO)
-          # echo "-------"
-          # echo "$BODY"
-          # echo "PACKAGE_INFO_BODY<<EOF" >> $GITHUB_ENV
-          # echo "$BODY" >> $GITHUB_ENV
-          # echo "EOF" >> $GITHUB_ENV
           python -c "import asset; print(asset.package_info('$BUILD_DIR/$PACKAGE_INFO'))" >> $GITHUB_ENV
       - name: Check build result
+        if: ${{ startsWith(env.DEBUG, 'true') }}
         run: |
           echo "docker_tag: DOCKER_TAG, github_tag: $RELEASE_TAG"
           ls -al ./$BUILD_DIR
@@ -99,7 +93,6 @@ jobs:
           echo "-------"
           echo "${{ env.PACKAGE_INFO_BODY }}"
       - name: Upload release asset
-        if: ${{ true }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
