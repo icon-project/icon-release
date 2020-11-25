@@ -4,15 +4,15 @@ on:
       loopchain:
         description: 'loopchain tag'
         required: true
-        default: '2.6.0'
+        default: '2.7.0rc1'
       iconrpcserver:
         description: 'iconrpcserver tag'
         required: true
-        default: '1.5.1'
+        default: '1.6.0rc1'
       iconservice:
         description: 'iconservice tag'
         required: true
-        default: '1.7.7'
+        default: '1.8.0rc1'
       rewardcalculator:
         description: 'rewardcalculator tag'
         required: true
@@ -20,7 +20,7 @@ on:
       release_tag:
         description: 'github release tag'
         required: true
-        default: '2020.09'
+        default: '2020.11'
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -79,25 +79,21 @@ jobs:
       # XXX this step for test
       - name: Prepare assets
         run: |
-          import pytz
-          from datetime import datetime
-          tzinfo = pytz.timezone("Asia/Seoul")
-          # hash_tag = "${{ hashFiles('Makefile') }}"
-          # print(hash_tag)
-          # version_tag = f"{datetime.now(tzinfo).strftime('%Y%m%dT%H%M%S')}x{hash_tag[:6]}"
-          version_tag = f"{datetime.now(tzinfo).strftime('%Y.%m.%d-%H%M%S')}"
-          print(f"::set-env name=DOCKER_TAG::{version_tag}")
-        shell: python
+          # e.g. DOCKER_TAG=2020.11.25-155653
+          python -c "import asset; print(asset.docker_tag())" >> $GITHUB_ENV
 
       - name: Build assets
         # set-env truncate mulitline strings: https://github.com/actions/toolkit/issues/403
         run: |
           make assets DOCKER_TAG=$DOCKER_TAG RELEASE_TAG=$RELEASE_TAG
           BODY=$(cat $BUILD_DIR/$PACKAGE_INFO)
-          BODY="${BODY//$'\n'/'%0A'}"
+          # BODY="${BODY//$'\n'/'%0A'}"
           echo "-------"
-          echo $BODY
-          echo "::set-env name=PACKAGE_INFO_BODY::$BODY"
+          echo "$BODY"
+          # echo "::set-env name=PACKAGE_INFO_BODY::$BODY"
+          echo "PACKAGE_INFO_BODY<<EOF" >> $GITHUB_ENV
+          echo "$BODY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
       - name: Check build result
         run: |
           echo "docker_tag: DOCKER_TAG, github_tag: $RELEASE_TAG"
@@ -113,7 +109,7 @@ jobs:
           tag: ${{ env.RELEASE_TAG }} # ${{ github.ref }}
           file: ${{ format('{0}/*', env.ASSETS_DIR) }}
           file_glob: true
-          release_name: Release {{ env.RELEASE_TAG }}
+          release_name: Release ${{ env.RELEASE_TAG }}
           # prerelease: true
           overwrite: true
           body: |
