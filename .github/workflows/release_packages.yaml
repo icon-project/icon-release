@@ -32,7 +32,6 @@ jobs:
       BUILD_DIR: build
       ASSETS_DIR: assets
       PACKAGE_INFO: package_info.txt
-      DOCKER_TAG: latest
       RELEASE_TAG: ${{ github.event.inputs.release_tag }}
       DEBUG: false
     steps:
@@ -76,18 +75,14 @@ jobs:
           python -m pip install --upgrade pip pytz wheel
           mkdir -p $BUILD_DIR $ASSETS_DIR
           make
-      - name: Prepare assets
-        run: |
-          # e.g. DOCKER_TAG=2020.11.25-155653
-          python -c "import asset; print(asset.docker_tag())" >> $GITHUB_ENV
       - name: Build assets
         run: |
-          make assets DOCKER_TAG=$DOCKER_TAG RELEASE_TAG=$RELEASE_TAG
+          make assets RELEASE_TAG=$RELEASE_TAG
           python -c "import asset; print(asset.package_info('$BUILD_DIR/$PACKAGE_INFO'))" >> $GITHUB_ENV
       - name: Check build result
         if: ${{ startsWith(env.DEBUG, 'true') }}
         run: |
-          echo "docker_tag: DOCKER_TAG, github_tag: $RELEASE_TAG"
+          echo "github release tag: $RELEASE_TAG"
           ls -al ./$BUILD_DIR
           ls -al ./$ASSETS_DIR
           echo "-------"

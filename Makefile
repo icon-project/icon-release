@@ -6,15 +6,14 @@ SUBDIR_RC = rewardcalculator
 
 BUILD_DIR = build
 ASSETS_DIR = assets
-DOCKER_TAG ?= latest
 RELEASE_TAG ?= $(date "+%Y.%m")
 
 LOOPCHAIN_DIR = loopchain
-CITIZEN_PACK_DIR = citizen_pack_$(DOCKER_TAG)
+CITIZEN_PACK_DIR = citizen_pack_$(RELEASE_TAG)
 
 PACKAGE_INFO = package_info.txt
-PACKAGE_CKSUM = package_$(DOCKER_TAG)_sha256sum.txt
-PACKAGE_ASSET = $(DOCKER_TAG)_packages.tar.gz
+PACKAGE_CKSUM = package_$(RELEASE_TAG)_sha256sum.txt
+PACKAGE_ASSET = $(RELEASE_TAG)_packages.tar.gz
 CITIZEN_PACK = $(CITIZEN_PACK_DIR).tar.gz
 CITIZEN_PACK_CKSUM = $(CITIZEN_PACK_DIR)_sha256sum.txt
 DOWNLOAD_URL = https://github.com/icon-project/icon-release/releases/download/$(RELEASE_TAG)
@@ -57,7 +56,7 @@ generate-packages-info:
 	@ echo "> Generate package info... "
 
 	@ rm -rf $(abspath $(BUILD_DIR))/$(PACKAGE_INFO)
-	@ printf "## Docker TAG \n\t$(DOCKER_TAG) \n" >> $(abspath $(BUILD_DIR))/$(PACKAGE_INFO)
+	@ printf "## Release TAG \n\t$(RELEASE_TAG) \n" >> $(abspath $(BUILD_DIR))/$(PACKAGE_INFO)
 
 	@ printf "\n## Packages \n" >> $(abspath $(BUILD_DIR))/$(PACKAGE_INFO)
 	@ for PACKAGE in $(notdir $(wildcard $(BUILD_DIR)/*.whl)) ; do \
