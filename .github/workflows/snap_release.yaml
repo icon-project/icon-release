@@ -1,0 +1,61 @@
+on:
+  workflow_dispatch:
+    inputs:
+      loopchain:
+        description: 'loopchain tag'
+        required: true
+        default: '2.7.0'
+      iconrpcserver:
+        description: 'iconrpcserver tag'
+        required: true
+        default: '1.6.0'
+      iconservice:
+        description: 'iconservice tag'
+        required: true
+        default: '1.8.0'
+      rewardcalculator:
+        description: 'rewardcalculator tag'
+        required: true
+        default: '1.2.2'
+      release_tag:
+        description: 'snap release tag'
+        required: true
+        default: '2020.11'
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      RC_BRANCH: ${{ github.event.inputs.rewardcalculator }}
+      RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+      DEBUG: false
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v2
+      - name: Workflow check
+        if : ${{ startsWith(env.DEBUG, 'true') }}
+        run: |
+          echo $PWD
+          ls -al
+      - name: Build snapcraft
+        uses: snapcore/action-build@v1
+      - name: Check build result
+        if: ${{ startsWith(env.DEBUG, 'true') }}
+        run: |
+          echo "github_tag: $RELEASE_TAG"
+          ls -al ./$BUILD_DIR
+          ls -al ./$ASSETS_DIR
+          echo "-------"
+          echo "${{ env.PACKAGE_INFO_BODY }}"
+      - name: Upload release asset
+        if: ${{ false }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.RELEASE_TAG }} # ${{ github.ref }}
+          file: ${{ format('{0}/*', env.ASSETS_DIR) }}
+          file_glob: true
+          release_name: Release ${{ env.RELEASE_TAG }}
+          # prerelease: true
+          overwrite: true
+          body: |
+            ${{ env.PACKAGE_INFO_BODY }}
