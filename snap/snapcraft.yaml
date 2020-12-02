@@ -22,13 +22,10 @@ parts:
     go-importpath: github.com/icon-project/rewardcalculator
     source: https://github.com/icon-project/rewardcalculator.git
     source-type: git
-    source-branch: master
     override-pull: |
       snapcraftctl pull
-      # /bin/bash $HOME/snap_build/rc_checkout_branch.sh
       # RC_LATEST_TAG=git describe --tags --abbrev=0
       LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
-      echo "rc tag : ${LATEST_TAG}"
       git checkout ${LATEST_TAG}
     override-build: |
       make
@@ -78,18 +75,34 @@ parts:
       - automake
       - pkg-config
       - libtool
-  loopchain:
+  iconrpcserver:
     after: [ install-dependency ]
     plugin: python
     python-version: python3
-    requirements:
-      - /root/snap_build/requirements_snap.txt
     source-type: git
-    source-branch: master
+    source: https://github.com/icon-project/icon-rpc-server.git
+    override-pull: |
+      snapcraftctl pull
+      LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+      git checkout ${LATEST_TAG}
+  iconservice:
+    after: [ iconrpcserver ]
+    plugin: python
+    python-version: python3
+    source-type: git
+    source: https://github.com/icon-project/icon-service.git
+    override-pull: |
+      snapcraftctl pull
+      LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+      git checkout ${LATEST_TAG}
+  loopchain:
+    after: [ iconservice ]
+    plugin: python
+    python-version: python3
+    source-type: git
     source: https://github.com/icon-project/loopchain.git
     override-pull: |
       snapcraftctl pull
-      # /bin/bash $HOME/snap_build/checkout_branch.sh
       LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
       git checkout ${LATEST_TAG}
       snapcraftctl set-version $(cat VERSION)
