@@ -26,9 +26,10 @@ parts:
     override-pull: |
       snapcraftctl pull
       # /bin/bash $HOME/snap_build/rc_checkout_branch.sh
-      echo "release tag : ${RELEASE_TAG}"
-      echo "rc branch : ${RC_BRANCH}"
-      git checkout ${RC_BRANCH}
+      # RC_LATEST_TAG=git describe --tags --abbrev=0
+      LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+      echo "rc tag : ${LATEST_TAG}"
+      git checkout ${LATEST_TAG}
     override-build: |
       make
       install -m 755 -D -t $SNAPCRAFT_PART_INSTALL/bin/ $SNAPCRAFT_PART_BUILD/bin/*
@@ -88,7 +89,9 @@ parts:
     source: https://github.com/icon-project/loopchain.git
     override-pull: |
       snapcraftctl pull
-      /bin/bash $HOME/snap_build/checkout_branch.sh
+      # /bin/bash $HOME/snap_build/checkout_branch.sh
+      LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+      git checkout ${LATEST_TAG}
       snapcraftctl set-version $(cat VERSION)
       snapcraftctl set-grade stable
     override-build: |
