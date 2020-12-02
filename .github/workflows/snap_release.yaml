@@ -37,6 +37,7 @@ jobs:
           echo $PWD
           ls -al
       - name: Build snapcraft
+        id: snapcraft
         uses: snapcore/action-build@v1
       - name: Check build result
         if: ${{ startsWith(env.DEBUG, 'true') }}
@@ -46,7 +47,12 @@ jobs:
           ls -al ./$ASSETS_DIR
           echo "-------"
           echo "${{ env.PACKAGE_INFO_BODY }}"
-      - name: Upload release asset
+      - name: upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: snap
+          path: ${{ steps.snapcraft.outputs.snap }}
+      - name: Upload release
         if: ${{ false }}
         uses: svenstaro/upload-release-action@v2
         with:
