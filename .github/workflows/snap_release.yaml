@@ -1,59 +1,47 @@
 on:
+  release:
+    types:
+      - prereleased
+      - released
   workflow_dispatch:
     inputs:
-      loopchain:
-        description: 'loopchain tag'
+      upload_artifact:
+        description: 'upload artifact'
         required: true
-        default: '2.7.0'
-      iconrpcserver:
-        description: 'iconrpcserver tag'
-        required: true
-        default: '1.6.0'
-      iconservice:
-        description: 'iconservice tag'
-        required: true
-        default: '1.8.0'
-      rewardcalculator:
-        description: 'rewardcalculator tag'
-        required: true
-        default: '1.2.2'
-      release_tag:
-        description: 'snap release tag'
-        required: true
-        default: '2020.11'
+        default: 'yes'
 jobs:
   release:
     runs-on: ubuntu-latest
     env:
-      RC_BRANCH: ${{ github.event.inputs.rewardcalculator }}
-      RELEASE_TAG: ${{ github.event.inputs.release_tag }}
-      DEBUG: false
+      UPLOAD_ARTIFACT: ${{ github.event.inputs.upload_artifact }}
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+      DEBUG: ${{ true }}
     steps:
       - name: Checkout release
         uses: actions/checkout@v2
-      - name: Workflow check
-        if : ${{ startsWith(env.DEBUG, 'true') }}
+      - name: Check environment variables
+        if : ${{ env.DEBUG }}
         run: |
           echo $PWD
-          ls -al
+          echo "upload artifact: ($UPLOAD_ARTIFACT)"
+          echo "release tag: ($RELEASE_TAG)"
+          echo "deubg: ($DEBUG)"
+          echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
       - name: Build snapcraft
         id: snapcraft
         uses: snapcore/action-build@v1
       - name: Check build result
-        if: ${{ startsWith(env.DEBUG, 'true') }}
+        if: ${{ env.DEBUG }}
         run: |
-          echo "github_tag: $RELEASE_TAG"
-          ls -al ./$BUILD_DIR
-          ls -al ./$ASSETS_DIR
-          echo "-------"
-          echo "${{ env.PACKAGE_INFO_BODY }}"
+          ls -al ${{ steps.snapcraft.outputs.snap }}
       - name: Upload artifact
+        if: ${{ env.UPLOAD_ARTIFACT == 'yes' }}
         uses: actions/upload-artifact@v2
         with:
-          name: snap
+          name: loopchain_snap
           path: ${{ steps.snapcraft.outputs.snap }}
       - name: Publish to snap store
-        if: ${{ false }}
+        if: ${{ success() && env.RELEASE_TAG != '' }}
         uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.STORE_LOGIN }}
