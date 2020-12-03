@@ -19,12 +19,13 @@ parts:
         - g++-multilib
   icon-rc:
     plugin: go
+    go-channel: 1.12/stable
     go-importpath: github.com/icon-project/rewardcalculator
     source: https://github.com/icon-project/rewardcalculator.git
     source-type: git
     override-pull: |
       snapcraftctl pull
-      # RC_LATEST_TAG=git describe --tags --abbrev=0
+      go version
       LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
       git checkout ${LATEST_TAG}
     override-build: |
@@ -75,6 +76,8 @@ parts:
       - automake
       - pkg-config
       - libtool
+      - curl
+      - jq
   iconrpcserver:
     after: [ install-dependency ]
     plugin: python
@@ -105,7 +108,10 @@ parts:
       snapcraftctl pull
       LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
       git checkout ${LATEST_TAG}
-      snapcraftctl set-version $(cat VERSION)
+      VERSION=$(curl -H "Accept: application/vnd.github.v3+json" \
+        https://api.github.com/repos/icon-project/icon-release/releases/latest | jq -r .tag_name)
+      echo "release version : ${VERSION}"
+      snapcraftctl set-version ${VERSION}
       snapcraftctl set-grade stable
     override-build: |
       snapcraftctl build
@@ -119,8 +125,6 @@ parts:
       cp -a \$SNAP/conf \$SNAP/scripts/* \$TARGET_DIR/
       EOF
       chmod +x $SNAPCRAFT_PART_INSTALL/bin/init.sh
-    override-stage: |
-      snapcraftctl stage
     stage-packages:
       - python-six
     stage:

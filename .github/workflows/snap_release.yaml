@@ -47,21 +47,15 @@ jobs:
           ls -al ./$ASSETS_DIR
           echo "-------"
           echo "${{ env.PACKAGE_INFO_BODY }}"
-      - name: upload artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: snap
           path: ${{ steps.snapcraft.outputs.snap }}
-      - name: Upload release
+      - name: Publish to snap store
         if: ${{ false }}
-        uses: svenstaro/upload-release-action@v2
+        uses: snapcore/action-publish@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.RELEASE_TAG }} # ${{ github.ref }}
-          file: ${{ format('{0}/*', env.ASSETS_DIR) }}
-          file_glob: true
-          release_name: Release ${{ env.RELEASE_TAG }}
-          # prerelease: true
-          overwrite: true
-          body: |
-            ${{ env.PACKAGE_INFO_BODY }}
+          store_login: ${{ secrets.STORE_LOGIN }}
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          release: ${{ format('edge/{0}', env.RELEASE_TAG) }}
