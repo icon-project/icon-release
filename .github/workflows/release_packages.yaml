@@ -4,19 +4,19 @@ on:
       loopchain:
         description: 'loopchain tag'
         required: true
-        default: '2.7.0rc1'
+        default: '2.7.0'
       iconrpcserver:
         description: 'iconrpcserver tag'
         required: true
-        default: '1.6.0rc1'
+        default: '1.6.0'
       iconservice:
         description: 'iconservice tag'
         required: true
-        default: '1.8.0rc1'
+        default: '1.8.0'
       rewardcalculator:
         description: 'rewardcalculator tag'
         required: true
-        default: '1.2.2'
+        default: '1.2.3'
       release_tag:
         description: 'github release tag'
         required: true
@@ -90,8 +90,8 @@ jobs:
       - name: Upload release asset
         uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.RELEASE_TAG }} # ${{ github.ref }}
+          repo_token: ${{ secrets.RELEASE_SECRET }}
+          tag: ${{ env.RELEASE_TAG }}
           file: ${{ format('{0}/*', env.ASSETS_DIR) }}
           file_glob: true
           release_name: Release ${{ env.RELEASE_TAG }}
