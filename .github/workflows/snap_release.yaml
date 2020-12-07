@@ -1,8 +1,7 @@
 on:
   release:
     types:
-      - prereleased
-      - released
+      - published
   workflow_dispatch:
     inputs:
       upload_artifact:
