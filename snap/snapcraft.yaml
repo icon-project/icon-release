@@ -42,7 +42,7 @@ parts:
     plugin: autotools
     configflags: [--prefix=/usr]
     build-packages:
-      - libssl1.0-dev
+      - libssl1.1-dev
       - libsqlite3-dev
       - libbz2-dev
       - liblzma-dev
