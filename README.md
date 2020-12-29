@@ -1,3 +1,7 @@
+![release packages](https://github.com/icon-project/icon-release/workflows/Release%20packages/badge.svg?event=workflow_dispatch)
+![release snap](https://github.com/icon-project/icon-release/workflows/Release%20snap/badge.svg?event=release)
+[![loopchain](https://snapcraft.io/loopchain/badge.svg)](https://snapcraft.io/loopchain)
+
 # ICON release
 This repository to release packages of ICON projects that [loopchain], [icon-service], [icon-rpc-server]
 
