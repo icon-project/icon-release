@@ -5,7 +5,7 @@ on:
       loopchain:
         description: 'loopchain tag'
         required: true
-        default: '2.7.0'
+        default: '2.7.1'
       iconrpcserver:
         description: 'iconrpcserver tag'
         required: true
