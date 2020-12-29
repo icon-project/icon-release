@@ -1,3 +1,4 @@
+name: Release packages
 on:
   workflow_dispatch:
     inputs:
@@ -16,7 +17,7 @@ on:
       rewardcalculator:
         description: 'rewardcalculator tag'
         required: true
-        default: '1.2.3'
+        default: '1.2.4'
       release_tag:
         description: 'github release tag'
         required: true
