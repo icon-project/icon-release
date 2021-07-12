@@ -86,8 +86,9 @@ parts:
     source: https://github.com/icon-project/icon-rpc-server.git
     override-pull: |
       snapcraftctl pull
-      LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
-      git checkout ${LATEST_TAG}
+      # LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+      # git checkout ${LATEST_TAG}
+      git checkout release-snap-1.8.10
   iconservice:
     after: [ iconrpcserver ]
     plugin: python
@@ -96,8 +97,9 @@ parts:
     source: https://github.com/icon-project/icon-service.git
     override-pull: |
       snapcraftctl pull
-      LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
-      git checkout ${LATEST_TAG}
+      # LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+      # git checkout ${LATEST_TAG}
+      git checkout release-snap-1.8.10
   loopchain:
     after: [ iconservice ]
     plugin: python
