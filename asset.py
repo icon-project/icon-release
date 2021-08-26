@@ -17,3 +17,24 @@ def package_info(file_path: str) -> str:
 
     # https://git.io/JkD3W
     return f"PACKAGE_INFO_BODY<<EOF\n{body}\nEOF"
+
+
+def snap_version(release_tag: str) -> str:
+    """ Make snap release version
+    release tag format : YYYYMMDD[.micro]
+
+    :param release_tag:
+    :return: snap release version
+    """
+
+    import re
+
+    pattern = re.compile(r"(\d{4})(\d{2})\d{2}(\.[0-9]*)([.-_]?(?:dev|rc|post)\d*)?")
+    version = ""
+    if release_tag:
+        match = re.search(pattern, release_tag)
+        if match:
+            year, month, micro, suffix = match.groups()
+            version = f"{year}.{month}{micro}{suffix}"
+
+    return f"RELEASE_VERSION<<EOF\n{version}\nEOF"
