@@ -5,23 +5,23 @@ on:
       loopchain:
         description: 'loopchain tag'
         required: true
-        default: '2.7.7'
+        default: '2.8.0'
       iconrpcserver:
         description: 'iconrpcserver tag'
         required: true
-        default: '1.6.0'
+        default: '1.7.0'
       iconservice:
         description: 'iconservice tag'
         required: true
-        default: '1.8.2'
+        default: '1.9.0'
       rewardcalculator:
         description: 'rewardcalculator tag'
         required: true
-        default: '1.2.5'
+        default: '1.2.6'
       release_tag:
         description: 'github release tag'
         required: true
-        default: '2020.11.12'
+        default: '20210826'
 jobs:
   release:
     runs-on: ubuntu-latest
