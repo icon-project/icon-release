@@ -9,6 +9,10 @@ on:
         description: 'upload artifact'
         required: true
         default: 'yes'
+      release_tag:
+        description: 'release tag'
+        required: false
+        default: '20210826.0.dev'
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -21,6 +25,11 @@ jobs:
     steps:
       - name: Checkout release
         uses: actions/checkout@v2
+      - name: Set envs
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "release tag: ($RELEASE_TAG)"
+          echo "RELEASE_TAG=${{ github.event.inputs.release_tag }}" >> $GITHUB_ENV
       - name: Make snap release version
         run: |
           echo "release tag: ($RELEASE_TAG)"
