@@ -16,6 +16,7 @@ jobs:
       UPLOAD_ARTIFACT: ${{ github.event.inputs.upload_artifact }}
       RELEASE_TAG: ${{ github.event.release.tag_name }}
       RELEASE_VERSION: ${{ '' }}
+      ARTIFACT_NAME: loopchain_snap
       DEBUG: ${{ true }}
     steps:
       - name: Checkout release
@@ -24,7 +25,10 @@ jobs:
         run: |
           echo "release tag: ($RELEASE_TAG)"
           echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
-          python -c "import asset; print(asset.snap_version('$BUILD_DIR/$RELEASE_TAG'))" >> $GITHUB_ENV
+          python -c "import asset; print(asset.snap_version('$RELEASE_TAG'))" >> $GITHUB_ENV
+          if [[ -n $RELEASE_VERSION ]]; then
+            echo "ARTIFACT_NAME=loopchain_snap_$RELEASE_VERSION" >> $GITHUB_ENV
+          fi
       - name: Check environment variables
         if : ${{ env.DEBUG }}
         run: |
@@ -32,6 +36,7 @@ jobs:
           echo "upload artifact: ($UPLOAD_ARTIFACT)"
           echo "release tag: ($RELEASE_TAG)"
           echo "release version: ($RELEASE_VERSION)"
+          echo "artifact name: ($ARTIFACT_NAME)"
           echo "deubg: ($DEBUG)"
           echo "release version empty: (${{ env.RELEASE_VERSION == '' }})"
       - name: Build snapcraft
@@ -45,7 +50,7 @@ jobs:
         if: ${{ env.UPLOAD_ARTIFACT == 'yes' }}
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ format('loopchain_snap_{0}', env.RELEASE_VERSION) }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: ${{ steps.snapcraft.outputs.snap }}
       - name: Publish to snap store
         if: ${{ success() && env.RELEASE_VERSION != '' }}
