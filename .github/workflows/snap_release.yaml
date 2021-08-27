@@ -30,11 +30,13 @@ jobs:
         run: |
           echo "release tag: ($RELEASE_TAG)"
           echo "RELEASE_TAG=${{ github.event.inputs.release_tag }}" >> $GITHUB_ENV
+          echo "release tag: ($RELEASE_TAG)"
       - name: Make snap release version
         run: |
           echo "release tag: ($RELEASE_TAG)"
           echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
           python -c "import asset; print(asset.snap_version('$RELEASE_TAG'))" >> $GITHUB_ENV
+          echo "release version: ($RELEASE_VERSION)"
           if [[ -n $RELEASE_VERSION ]]; then
             echo "ARTIFACT_NAME=loopchain_snap_$RELEASE_VERSION" >> $GITHUB_ENV
           fi
@@ -62,7 +64,7 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ steps.snapcraft.outputs.snap }}
       - name: Publish to snap store
-        if: ${{ success() && env.RELEASE_VERSION != '' }}
+        if: ${{ success() && github.event_name == 'release' && env.RELEASE_VERSION != '' }}
         uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.STORE_LOGIN }}

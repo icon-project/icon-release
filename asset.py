@@ -29,7 +29,7 @@ def snap_version(release_tag: str) -> str:
 
     import re
 
-    pattern = re.compile(r"(\d{4})(\d{2})\d{2}(\.[0-9]*)([.-_]?(?:dev|rc|post)\d*)?")
+    pattern = re.compile(r"(\d{4})(\d{2})\d{2}(\.[0-9]*)?([.-_]?(?:dev|rc|post)\d*)?")
     version = ""
     if release_tag:
         match = re.search(pattern, release_tag)
