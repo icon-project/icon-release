@@ -35,10 +35,11 @@ jobs:
         run: |
           echo "release tag: ($RELEASE_TAG)"
           echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
-          python -c "import asset; print(asset.snap_version('$RELEASE_TAG'))" >> $GITHUB_ENV
-          echo "release version: ($RELEASE_VERSION)"
-          if [[ -n $RELEASE_VERSION ]]; then
-            echo "ARTIFACT_NAME=loopchain_snap_$RELEASE_VERSION" >> $GITHUB_ENV
+          SNAP_VERSION=$(python -c "import asset; print(asset.snap_version('$RELEASE_TAG'))")
+          echo "RELEASE_VERSION=$SNAP_VERSION" >> $GITHUB_ENV
+          echo "release version: ($SNAP_VERSION)"
+          if [[ -n $SNAP_VERSION ]]; then
+            echo "ARTIFACT_NAME=loopchain_snap_$SNAP_VERSION" >> $GITHUB_ENV
           fi
       - name: Check environment variables
         if : ${{ env.DEBUG }}

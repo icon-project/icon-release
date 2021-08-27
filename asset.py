@@ -37,4 +37,4 @@ def snap_version(release_tag: str) -> str:
             year, month, micro, suffix = match.groups()
             version = f"{year}.{month}{micro}{suffix}"
 
-    return f"RELEASE_VERSION={version}"
+    return version
