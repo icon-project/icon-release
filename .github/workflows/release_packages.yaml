@@ -22,6 +22,10 @@ on:
         description: 'github release tag'
         required: true
         default: '20210826'
+      pre_release:
+        description: 'pre release'
+        required: true
+        default: 'false'
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -96,7 +100,7 @@ jobs:
           file: ${{ format('{0}/*', env.ASSETS_DIR) }}
           file_glob: true
           release_name: Release ${{ env.RELEASE_TAG }}
-          # prerelease: true
+          prerelease: ${{ github.event.inputs.pre_release == 'true' }}
           overwrite: true
           body: |
             ${{ env.PACKAGE_INFO_BODY }}
