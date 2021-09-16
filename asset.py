@@ -16,7 +16,7 @@ def package_info(file_path: str) -> str:
         body = f.read()
 
     # https://git.io/JkD3W
-    return f"PACKAGE_INFO_BODY<<EOF\n{body}\nEOF"
+    return body
 
 
 def snap_version(release_tag: str) -> str:

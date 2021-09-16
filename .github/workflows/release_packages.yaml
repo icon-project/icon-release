@@ -83,7 +83,9 @@ jobs:
       - name: Build assets
         run: |
           make assets RELEASE_TAG=$RELEASE_TAG
+          echo "PACKAGE_INFO_BODY<<EOF" >> $GITHUB_ENV
           python -c "import asset; print(asset.package_info('$BUILD_DIR/$PACKAGE_INFO'))" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
       - name: Check build result
         if: ${{ env.DEBUG }}
         run: |
