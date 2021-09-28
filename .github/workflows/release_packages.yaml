@@ -83,7 +83,7 @@ jobs:
       - name: Build assets
         run: |
           make assets RELEASE_TAG=$RELEASE_TAG
-          python -c "import asset; print(asset.package_info('$BUILD_DIR/$PACKAGE_INFO'))" >> $GITHUB_ENV
+          echo "PACKAGE_INFO_BODY=$BUILD_DIR/$PACKAGE_INFO" >> $GITHUB_ENV
       - name: Check build result
         if: ${{ env.DEBUG }}
         run: |
@@ -93,6 +93,18 @@ jobs:
           echo "-------"
           echo "${{ env.PACKAGE_INFO_BODY }}"
       - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ env.RELEASE_TAG }}
+          tag_name: ${{ github.event.inputs.release_tag }}
+          body_path: ${{ env.PACKAGE_INFO_BODY }}
+          files: |
+            ${{ format('{0}/*', env.ASSETS_DIR) }}
+          prerelease: true
+          token: ${{ secrets.RELEASE_SECRET }}
+
+      - name: Upload release asset
+        if: ${{ false }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.RELEASE_SECRET }}
