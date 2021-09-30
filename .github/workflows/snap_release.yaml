@@ -19,16 +19,28 @@ jobs:
     env:
       UPLOAD_ARTIFACT: ${{ github.event.inputs.upload_artifact }}
       RELEASE_TAG: ${{ github.event.release.tag_name }}
+      ARTIFACT_NAME: loopchain_snap
       DEBUG: ${{ true }}
     steps:
       - name: Checkout release
         uses: actions/checkout@v2
+      - name: Set envs
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "release tag: ($RELEASE_TAG)"
+          echo "RELEASE_TAG=${{ github.event.inputs.release_tag }}" >> $GITHUB_ENV
+          echo "release tag: ($RELEASE_TAG)"
+          echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
+          if [[ -n $RELEASE_TAG ]]; then
+            echo "ARTIFACT_NAME=loopchain_snap_$RELEASE_TAG" >> $GITHUB_ENV
+          fi
       - name: Check environment variables
         if : ${{ env.DEBUG }}
         run: |
           echo $PWD
           echo "upload artifact: ($UPLOAD_ARTIFACT)"
           echo "release tag: ($RELEASE_TAG)"
+          echo "artifact name: ($ARTIFACT_NAME)"
           echo "deubg: ($DEBUG)"
           echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
       - name: Create metadata
@@ -46,10 +58,10 @@ jobs:
         if: ${{ env.UPLOAD_ARTIFACT == 'yes' }}
         uses: actions/upload-artifact@v2
         with:
-          name: loopchain_snap
+          name: ${{ env.ARTIFACT_NAME }}
           path: ${{ steps.snapcraft.outputs.snap }}
       - name: Publish to snap store
-        if: ${{ success() && env.RELEASE_TAG != '' }}
+        if: ${{ success() && github.event_name == 'release' && env.RELEASE_TAG != '' }}
         uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.STORE_LOGIN }}
