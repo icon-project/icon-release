@@ -27,12 +27,12 @@ jobs:
       - name: Set envs
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          echo "release tag: ($RELEASE_TAG)"
-          echo "RELEASE_TAG=${{ github.event.inputs.release_tag }}" >> $GITHUB_ENV
-          echo "release tag: ($RELEASE_TAG)"
-          echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
-          if [[ -n $RELEASE_TAG ]]; then
-            echo "ARTIFACT_NAME=loopchain_snap_$RELEASE_TAG" >> $GITHUB_ENV
+          echo "env.RELEASE_TAG: (${{ env.RELEASE_TAG }})"
+          $RELEASE_VERSION=${{ github.event.inputs.release_tag }}
+          echo "RELEASE_TAG=$RELEASE_VERSION" >> $GITHUB_ENV
+          echo "release tag: ($RELEASE_VERSION)"
+          if [[ -n $RELEASE_VERSION ]]; then
+            echo "ARTIFACT_NAME=loopchain_snap_$RELEASE_VERSION" >> $GITHUB_ENV
           fi
       - name: Check environment variables
         if : ${{ env.DEBUG }}
