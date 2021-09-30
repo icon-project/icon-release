@@ -9,6 +9,10 @@ on:
         description: 'upload artifact'
         required: true
         default: 'yes'
+      release_tag:
+        description: 'release tag'
+        required: true
+        default: '20210928.0'
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -27,6 +31,10 @@ jobs:
           echo "release tag: ($RELEASE_TAG)"
           echo "deubg: ($DEBUG)"
           echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
+      - name: Create metadata
+        run: |
+          $APPSTREAM_PATH=$(python3 -c "import asset; print(asset.metadata($RELEASE_TAG))")
+          cat $APPSTREAM_PATH
       - name: Build snapcraft
         id: snapcraft
         uses: snapcore/action-build@v1
