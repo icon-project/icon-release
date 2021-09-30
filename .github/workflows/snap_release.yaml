@@ -45,7 +45,7 @@ jobs:
           echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
       - name: Create metadata
         run: |
-          $APPSTREAM_PATH=$(python3 -c "import asset; print(asset.metadata($RELEASE_TAG))")
+          APPSTREAM_PATH=$(python3 -c "import asset; print(asset.metadata('$RELEASE_TAG'))")
           cat $APPSTREAM_PATH
       - name: Build snapcraft
         id: snapcraft
