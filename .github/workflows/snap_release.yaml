@@ -28,7 +28,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo "env.RELEASE_TAG: (${{ env.RELEASE_TAG }})"
-          $RELEASE_VERSION=${{ github.event.inputs.release_tag }}
+          RELEASE_VERSION=${{ github.event.inputs.release_tag }}
           echo "RELEASE_TAG=$RELEASE_VERSION" >> $GITHUB_ENV
           echo "release tag: ($RELEASE_VERSION)"
           if [[ -n $RELEASE_VERSION ]]; then
