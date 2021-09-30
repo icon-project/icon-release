@@ -1,9 +1,6 @@
 name: loopchain
 type: app
 adopt-info: loopchain
-summary: loopchain citizen
-description: |
-  loopchain-citizen is software that loopchain client excluded vote function.
 confinement: strict
 base: core18
 
@@ -104,14 +101,11 @@ parts:
     python-version: python3
     source-type: git
     source: https://github.com/icon-project/loopchain.git
+    parse-info: [$SNAPCRAFT_PROJECT_DIR/snap/local/org.iconrepublic.loopchain.appdata.xml]
     override-pull: |
       snapcraftctl pull
       LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
       git checkout ${LATEST_TAG}
-      VERSION=$(curl -H "Accept: application/vnd.github.v3+json" \
-        https://api.github.com/repos/icon-project/icon-release/releases/latest | jq -r .tag_name)
-      echo "release version : ${VERSION}"
-      snapcraftctl set-version ${VERSION}
       snapcraftctl set-grade stable
     override-build: |
       snapcraftctl build
@@ -135,6 +129,7 @@ parts:
 apps:
   loopchain:
     command: bin/snapcraft-preload $SNAP/bin/loopchain
+    common-id: org.iconrepublic.loopchain
     plugs:
       - home
       - network

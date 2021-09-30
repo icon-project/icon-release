@@ -9,24 +9,44 @@ on:
         description: 'upload artifact'
         required: true
         default: 'yes'
+      release_tag:
+        description: 'release tag'
+        required: true
+        default: '20210928.0'
 jobs:
   release:
     runs-on: ubuntu-latest
     env:
       UPLOAD_ARTIFACT: ${{ github.event.inputs.upload_artifact }}
       RELEASE_TAG: ${{ github.event.release.tag_name }}
+      ARTIFACT_NAME: loopchain_snap
       DEBUG: ${{ true }}
     steps:
       - name: Checkout release
         uses: actions/checkout@v2
+      - name: Set envs
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "env.RELEASE_TAG: (${{ env.RELEASE_TAG }})"
+          RELEASE_VERSION=${{ github.event.inputs.release_tag }}
+          echo "RELEASE_TAG=$RELEASE_VERSION" >> $GITHUB_ENV
+          echo "release tag: ($RELEASE_VERSION)"
+          if [[ -n $RELEASE_VERSION ]]; then
+            echo "ARTIFACT_NAME=loopchain_snap_$RELEASE_VERSION" >> $GITHUB_ENV
+          fi
       - name: Check environment variables
         if : ${{ env.DEBUG }}
         run: |
           echo $PWD
           echo "upload artifact: ($UPLOAD_ARTIFACT)"
           echo "release tag: ($RELEASE_TAG)"
+          echo "artifact name: ($ARTIFACT_NAME)"
           echo "deubg: ($DEBUG)"
           echo "release tag empty: (${{ env.RELEASE_TAG == '' }})"
+      - name: Create metadata
+        run: |
+          APPSTREAM_PATH=$(python3 -c "import asset; print(asset.metadata('$RELEASE_TAG'))")
+          cat $APPSTREAM_PATH
       - name: Build snapcraft
         id: snapcraft
         uses: snapcore/action-build@v1
@@ -38,10 +58,10 @@ jobs:
         if: ${{ env.UPLOAD_ARTIFACT == 'yes' }}
         uses: actions/upload-artifact@v2
         with:
-          name: loopchain_snap
+          name: ${{ env.ARTIFACT_NAME }}
           path: ${{ steps.snapcraft.outputs.snap }}
       - name: Publish to snap store
-        if: ${{ success() && env.RELEASE_TAG != '' }}
+        if: ${{ success() && github.event_name == 'release' && env.RELEASE_TAG != '' }}
         uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.STORE_LOGIN }}
