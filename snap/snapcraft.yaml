@@ -129,6 +129,7 @@ parts:
 apps:
   loopchain:
     command: bin/snapcraft-preload $SNAP/bin/loopchain
+    common-id: org.iconrepublic.loopchain
     plugs:
       - home
       - network
