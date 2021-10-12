@@ -8,11 +8,16 @@ on:
       upload_artifact:
         description: 'upload artifact'
         required: true
-        default: 'yes'
+        default: 'true'
       release_tag:
         description: 'release tag'
         required: true
         default: '20210928.0'
+      publish_snap:
+        description: 'publish to snap store'
+        required: true
+        default: 'false'
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -20,6 +25,7 @@ jobs:
       UPLOAD_ARTIFACT: ${{ github.event.inputs.upload_artifact }}
       RELEASE_TAG: ${{ github.event.release.tag_name }}
       ARTIFACT_NAME: loopchain_snap
+      PUBLISH_SNAP: ${{ github.event.inputs.publish_snap == 'true' }}
       DEBUG: ${{ true }}
     steps:
       - name: Checkout release
@@ -55,13 +61,13 @@ jobs:
         run: |
           ls -al ${{ steps.snapcraft.outputs.snap }}
       - name: Upload artifact
-        if: ${{ env.UPLOAD_ARTIFACT == 'yes' }}
+        if: ${{ env.UPLOAD_ARTIFACT == 'true' }}
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ steps.snapcraft.outputs.snap }}
       - name: Publish to snap store
-        if: ${{ success() && github.event_name == 'release' && env.RELEASE_TAG != '' }}
+        if: ${{ success() && env.PUBLISH_SNAP || (github.event_name == 'release' && env.RELEASE_TAG != '') }}
         uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.STORE_LOGIN }}
